@@ -31,29 +31,7 @@ class CLIPBasedEncoder(nn.Module):
                 T.CenterCrop(self.model.visual.input_resolution),
                 T.Normalize((0.48145466, 0.4578275, 0.40821073), (0.26862954, 0.26130258, 0.27577711))
             )
-        # self.mapping_mlp = nn.Sequential(
-        #     nn.Linear(2048, 1024),
-        #     nn.ReLU(),
-        #     nn.Linear(1024, 1024)
-        # )
-        # self.freeze_text()
-        # self.freeze_all_except_last()
-    def freeze_text(self):
-        for param in self.model.transformer.parameters():
-            param.requires_grad = False
-        for param in self.model.token_embedding.parameters():
-            param.requires_grad = False
-        self.model.positional_embedding.requires_grad = False
-        for param in self.model.ln_final.parameters():
-            param.requires_grad = False
-        self.model.text_projection.requires_grad = False
             
-    def freeze_all_except_last(self):
-        # Freeze all layers except the last layer in the visual model
-        for name, param in self.model.visual.named_parameters():
-            if 'layer4' not in name and 'attnpool' not in name:
-                param.requires_grad = False
-    
     def get_reward(self, visual_input, text_input):
         visual_feature = self.encode_image(visual_input)
         text_feature = self.encode_text(text_input) 
@@ -72,7 +50,6 @@ class CLIPBasedEncoder(nn.Module):
         return self.model.encode_image(visual_input)
         
     def encode_text(self, text_input):
-        # with torch.no_grad():
         if type(text_input) == str:
             text_input = [text_input]
         if type(text_input) != torch.Tensor:
@@ -82,19 +59,16 @@ class CLIPBasedEncoder(nn.Module):
     def forward(self, visual_input, text_input):
         return self.encode_image(visual_input), self.encode_text(text_input)
 
-    # def lang_cond(self, input):
-    #     return self.mapping_mlp(input)
+
     
 _MODELS = {
-    "vit":
+    "AcTOL":
         {
-            "modelid": "ViT-B/32",
+            "modelid": "RN50",
             "download_link": "https://drive.google.com/uc?export=download&id=1LmDHaKMZCv9QT89dWubZ8dRo6qwpVMYo",
         }
 }
 
-# P: https://drive.google.com/file/d/1LmDHaKMZCv9QT89dWubZ8dRo6qwpVMYo/view?usp=drive_link
-# T: https://drive.google.com/file/d/14wn2R5ZDNujSq9Tsaeuy6fJNr6zM5l7E/view?usp=drive_link
 
 def _download(url: str, name: str,root: str):
     os.makedirs(root, exist_ok=True)
@@ -108,32 +82,17 @@ def _download(url: str, name: str,root: str):
     return download_target
 
 def load(name: str, device: Union[str, torch.device] = "cuda" if torch.cuda.is_available() else "cpu"):
-    
-    if name == "ViT-B/32":
-        model_path = "/root/.cache/Project/ckpt_20ep.pth"
-        print(model_path)
-    elif name == "rncbb":
-        model_path = "/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC/rncbb.pth"
-    elif name == "rnc":
-        model_path = "/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC/rncf10.pth"
+    if name in _MODELS:
+        model_path = _download(_MODELS[name]['download_link'], name, os.path.expanduser(f"~/.cache/AcTOL"))
     else:
         raise RuntimeError(f"Model {name} not found; available models = {_MODELS.keys()}")
-    print(f"===========Loading '{model_path}' Model==============")
+    print(f"===========Loading AcTOL Model==============")
     model = CLIPBasedEncoder("RN50", device)
     with open(model_path, 'rb') as opened_file:
         state_dict = torch.load(opened_file, map_location="cpu")
     if 'model' in state_dict:
         state_dict = state_dict['model']
     model.load_state_dict(state_dict, strict=False)
-    ## 
-    # model_path = "/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC/clipthenrnc/ckpt_0ep.pth"
-    # print(f"===========Loading '{model_path}' Model==============")
-    # with open(model_path, 'rb') as opened_file:
-    #     state_dict = torch.load(opened_file, map_location="cpu")
-    # if 'model' in state_dict:
-    #     state_dict = state_dict['model']
-    # model.load_state_dict(state_dict, strict=False)
-    
     print("========= Load Successfully ========")
     return model.eval()
     

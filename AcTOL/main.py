@@ -9,7 +9,6 @@ import numpy as np
 import time
 import utils
 import json
-import wandb
 os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
 
 import torch
@@ -20,7 +19,7 @@ from datasets.EpicKitchen_engine import train_one_epoch, EpicKitchenDataLoader
 from pathlib import Path
 from timm.scheduler import create_scheduler
 from timm.optim import create_optimizer
-from losses import DiffLoss, RnCLoss
+from losses import AcTOL_loss
 from model import CLIPBasedEncoder
 import clip
 import os
@@ -30,7 +29,7 @@ def get_args_parser():
     
     # Data preparation
     parser.add_argument('--image_path', default='../data/EPIC-KITCHENS-55', type=str)
-    parser.add_argument('--meta_file', default='assets/EpicKitchen-100-train-cleaned.csv', type=str)
+    parser.add_argument('--meta_file', default='assets/EpicKitchen-100-train.csv', type=str)
     
     # Base Settings
     parser.add_argument('--batch-size', default=128, type=int)
@@ -47,10 +46,8 @@ def get_args_parser():
  
     parser.add_argument('--logit-scale', default=100, type=int,
                         help='logit scale for training loss')
-    parser.add_argument('--rnc_temp', default=0.01, type=float,
+    parser.add_argument('--vlo_temp', default=0.01, type=float,
                         help='temperature for RnC loss')
-    parser.add_argument('--rnc_sim', default='l2', type=str, help='similarity function for RnC loss')
-    parser.add_argument('--prompt', default=False, type=bool)
     # Optimizer parameters
     parser.add_argument('--opt', default='adam', type=str, metavar='OPTIMIZER',
                         help='Optimizer (default: "adam"')
@@ -128,10 +125,6 @@ def main(args):
     if utils.get_rank() == 0:
         tensorboard_path = os.path.join(output_dir, 'events')
         tb_logger = SummaryWriter(tensorboard_path)
-        wandb.login(key="86e0d4781e03d4aec75603ab4ea46524ac746c27")
-        wandb.require("core")
-        wandb.init(project="robopvr", name="f8,l2,temp2,1/1,random,scale100,diffavg")
-        wandb.config.update(args)
     utils.init_log(__name__, log_file=os.path.join(output_dir, 'full_log.txt'))
     logger = logging.getLogger(__name__)
     print = logger.info
@@ -156,16 +149,9 @@ def main(args):
     )
 
 
-    # model = CLIPBasedEncoder(modelid=args.model, device=device, bs=args.batch_size, fn=args.num_frames)
     model = CLIPBasedEncoder(modelid=args.model, device=device)
-    # model_path = "/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC/ckpt_1000ep.pth"
-    # with open(model_path, 'rb') as opened_file:
-    #     state_dict = torch.load(opened_file, map_location="cpu")
-    # if 'model' in state_dict:
-    #     state_dict = state_dict['model']
-    # model.load_state_dict(state_dict, strict=False)
-    loss_1 = RnCLoss(temperature=args.rnc_temp, feature_sim=args.rnc_sim)
-    loss_2 = DiffLoss(logit_scale=args.logit_scale)
+
+    loss = AcTOL_loss(temperature=args.vlo_temp)
     model.to(device)
     
     torch.distributed.barrier()
@@ -198,7 +184,7 @@ def main(args):
             train_dataloader.sampler.set_epoch(epoch)
         train_stats = train_one_epoch(
             model, 
-            loss_model=(loss_1, loss_2),
+            loss_model=AcTOL_loss,
             data_loader=train_dataloader,
             optimizer=optimizer, 
             device=device, 
@@ -209,11 +195,6 @@ def main(args):
         )
         start_idx += len(train_dataloader)
         lr_scheduler.step(epoch)
-        if utils.is_main_process():
-            wandb.log({"loss": train_stats["loss"], 
-                       "loss_rnc": train_stats["loss_rnc"], 
-                       "loss_bb": train_stats["loss_bb"]
-                       })
         if args.output_dir and utils.is_main_process() and epoch % args.save_interval == 0:
             with open(os.path.join(output_dir, "log.txt"), 'a') as f:
                 f.write(json.dumps({**{f'train_{k}': v for k, v in train_stats.items()},

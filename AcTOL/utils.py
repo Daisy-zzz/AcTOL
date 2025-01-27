@@ -275,29 +275,6 @@ def save_on_master(*args, **kwargs):
 
 
 def init_distributed_mode(args, verbose=False):
-    # if 'RANK' in os.environ and 'WORLD_SIZE' in os.environ:
-    
-    # if 'USE_MULTIPLE_JOBS' in os.environ: 
-    #     from init_multinode import init_multinode
-    #     init_multinode(args)
-    # elif 'SLURM_PROCID' in os.environ:
-    #     args.rank = int(os.environ['SLURM_PROCID'])
-    #     args.gpu = args.rank % torch.cuda.device_count()
-    #     args.world_size = int(os.environ['SLURM_NTASKS'])
-    #     node_list = os.environ['SLURM_NODELIST']
-    #     num_gpus = torch.cuda.device_count()
-    #     addr = subprocess.getoutput(
-    #         f'scontrol show hostname {node_list} | head -n1')
-    #     os.environ['MASTER_PORT'] = str(getattr(args, 'port', '29529'))
-    #     os.environ['MASTER_ADDR'] = addr
-    #     os.environ['WORLD_SIZE'] = str(args.world_size)
-    #     os.environ['LOCAL_RANK'] = str(args.rank % num_gpus)
-    #     os.environ['RANK'] = str(args.rank)
-    # else:
-    #     print('Not using distributed mode')
-    #     args.distributed = False
-    #     return
-
     args.distributed = True
 
     args.dist_backend = 'nccl'
@@ -338,8 +315,6 @@ def init_distributed_slurm(args):
     elif 'MASTER_PORT' in os.environ:
         pass  # use MASTER_PORT in the environment variable
     else:
-        # 29500 is torch.distributed default port
-        # os.environ['MASTER_PORT'] = str(29501)
         os.environ['MASTER_PORT'] = str(getattr(args, 'port', 29501))
     # use MASTER_ADDR in the environment variable if it already exists
     if 'MASTER_ADDR' not in os.environ:
