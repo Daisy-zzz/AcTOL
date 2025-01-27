@@ -16,6 +16,42 @@ class LabelDifference(torch.nn.Module):
         else:
             raise ValueError(self.distance_type)
 
+def brownian_bridge_loss(current_features, current_labels):
+    """
+    Computes the Brownian Bridge constraint loss with dynamic variance, suitable for non-uniformly sampled frames.
+
+    Parameters:
+        current_features (torch.Tensor): A feature tensor of shape (N, d), where
+                                          N represents the number of frames, and d represents the feature dimension.
+        current_labels (torch.Tensor): A tensor of shape (N,) representing the frame indices or timestamps,
+                                       which must be sorted in ascending order.
+
+    Returns:
+        torch.Tensor: A scalar tensor representing the Brownian Bridge constraint loss.
+    """
+    # Features of the starting and ending frames
+    start_feature = current_features[0]   # Shape: (d,)
+    end_feature = current_features[-1]    # Shape: (d,)
+
+    # Get the time range
+    A = current_labels[0]  # Start time
+    T = current_labels[-1]  # End time
+    t = current_labels  # Current frame timestamps
+
+    # Compute alpha
+    alpha = (t - A) / (T - A)  # Shape: (N,)
+
+    # Compute the target features for linear interpolation
+    linear_interpolation = (1 - alpha).unsqueeze(1) * start_feature + alpha.unsqueeze(1) * end_feature  # Shape: (N, d)
+
+    # Compute dynamic variance
+    sigma_squared = alpha * (T - t)  # Shape: (N,)
+
+    # Compute the Brownian Bridge constraint loss
+    squared_diff = torch.sum((current_features[1:-1] - linear_interpolation[1:-1]) ** 2, dim=1)  # Shape: (N,)
+    bridge_loss = torch.sum(squared_diff / (2 * sigma_squared[1:-1]))  # Normalize using dynamic variance
+
+    return bridge_loss
 
 class AcTOL_loss(torch.nn.Module):
     def __init__(self, temperature=0.01, label_diff='l1'):
@@ -65,41 +101,6 @@ class AcTOL_loss(torch.nn.Module):
             total_bb_loss += bb_loss
         return total_loss_vlo / bs, total_bb_loss / bs
 
-def brownian_bridge_loss(current_features, current_labels):
-    """
-    Computes the Brownian Bridge constraint loss with dynamic variance, suitable for non-uniformly sampled frames.
 
-    Parameters:
-        current_features (torch.Tensor): A feature tensor of shape (N, d), where
-                                          N represents the number of frames, and d represents the feature dimension.
-        current_labels (torch.Tensor): A tensor of shape (N,) representing the frame indices or timestamps,
-                                       which must be sorted in ascending order.
-
-    Returns:
-        torch.Tensor: A scalar tensor representing the Brownian Bridge constraint loss.
-    """
-    # Features of the starting and ending frames
-    start_feature = current_features[0]   # Shape: (d,)
-    end_feature = current_features[-1]    # Shape: (d,)
-
-    # Get the time range
-    A = current_labels[0]  # Start time
-    T = current_labels[-1]  # End time
-    t = current_labels  # Current frame timestamps
-
-    # Compute alpha
-    alpha = (t - A) / (T - A)  # Shape: (N,)
-
-    # Compute the target features for linear interpolation
-    linear_interpolation = (1 - alpha).unsqueeze(1) * start_feature + alpha.unsqueeze(1) * end_feature  # Shape: (N, d)
-
-    # Compute dynamic variance
-    sigma_squared = alpha * (T - t)  # Shape: (N,)
-
-    # Compute the Brownian Bridge constraint loss
-    squared_diff = torch.sum((current_features[1:-1] - linear_interpolation[1:-1]) ** 2, dim=1)  # Shape: (N,)
-    bridge_loss = torch.sum(squared_diff / (2 * sigma_squared[1:-1]))  # Normalize using dynamic variance
-
-    return bridge_loss
 
 
