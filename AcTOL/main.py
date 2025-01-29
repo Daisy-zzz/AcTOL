@@ -1,5 +1,3 @@
-# Copyright (c) 2015-present, Facebook, Inc.
-# All rights reserved.
 import argparse
 import datetime
 import logging
@@ -9,8 +7,6 @@ import numpy as np
 import time
 import utils
 import json
-os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
-
 import torch
 import torch.backends.cudnn as cudnn
 from torch.nn.parallel import DistributedDataParallel as NativeDDP
@@ -92,7 +88,7 @@ def get_args_parser():
     # Resume & Checkpoint Save & evaluation parameters
     parser.add_argument('--save_interval', default=50, type=int,
                         help='(default: 50ep)')
-    parser.add_argument('--output_dir', default='/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC/rncf10bbnew',
+    parser.add_argument('--output_dir', default='',
                         help='path where to save, empty for no saving')
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
@@ -214,7 +210,7 @@ def main(args):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('DecisionNCE training script', parents=[get_args_parser()])
+    parser = argparse.ArgumentParser('AcTOL training script', parents=[get_args_parser()])
     args = parser.parse_args()
     if args.output_dir:
         Path(args.output_dir).mkdir(parents=True, exist_ok=True)
