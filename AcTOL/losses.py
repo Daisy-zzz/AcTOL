@@ -49,9 +49,9 @@ def brownian_bridge_loss(current_features, current_labels):
 
     # Compute the Brownian Bridge constraint loss
     squared_diff = torch.sum((current_features[1:-1] - linear_interpolation[1:-1]) ** 2, dim=1)  # Shape: (N,)
-    bridge_loss = torch.sum(squared_diff / (2 * sigma_squared[1:-1]))  # Normalize using dynamic variance
+    bridge_loss = torch.sum(squared_diff / (torch.log(1 + 2 * sigma_squared[1:-1])))  # Normalize using dynamic variance
 
-    return bridge_loss
+    return bridge_loss * 100
 
 class AcTOL_loss(torch.nn.Module):
     def __init__(self, temperature=0.01, label_diff='l1'):
