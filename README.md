@@ -1,2 +1,2 @@
 # AcTOL
-The code repository for "Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents".
+The official code repository for ICML 2025 submission paper "Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents".
