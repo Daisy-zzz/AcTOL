@@ -21,7 +21,7 @@ import clip
 import os
 
 def get_args_parser():
-    parser = argparse.ArgumentParser('training script', add_help=False)
+    parser = argparse.ArgumentParser('AcTOL training script', add_help=False)
     
     # Data preparation
     parser.add_argument('--image_path', default='../data/EPIC-KITCHENS-55', type=str)
@@ -39,9 +39,7 @@ def get_args_parser():
                         choices=clip.available_models(),
                         help='Name of model to train, \
                         please make sure your model is in list of available_models of clip')
- 
-    parser.add_argument('--logit-scale', default=100, type=int,
-                        help='logit scale for training loss')
+
     parser.add_argument('--vlo_temp', default=0.01, type=float,
                         help='temperature for RnC loss')
     # Optimizer parameters
