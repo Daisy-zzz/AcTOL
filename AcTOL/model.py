@@ -65,7 +65,7 @@ _MODELS = {
     "AcTOL":
         {
             "modelid": "RN50",
-            "download_link": "https://drive.google.com/uc?export=download&id=1LmDHaKMZCv9QT89dWubZ8dRo6qwpVMYo",
+            "download_link": "",
         }
 }
 
