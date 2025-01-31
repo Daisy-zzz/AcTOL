@@ -12,7 +12,6 @@ from tqdm import tqdm
 import random
 import torch.nn.functional as F
 import mmengine.fileio as fileio
-from datasets.data_augmentation import create_data_augment
 
 class EpicKitchen(Dataset):
     def __init__(self,  root,

@@ -86,7 +86,7 @@ def get_args_parser():
     # Resume & Checkpoint Save & evaluation parameters
     parser.add_argument('--save_interval', default=50, type=int,
                         help='(default: 50ep)')
-    parser.add_argument('--output_dir', default='/data/guohua/BeiJing/zzz/RobotPVR/Project/runnings/RnC',
+    parser.add_argument('--output_dir', default='',
                         help='path where to save, empty for no saving')
     parser.add_argument('--resume', default='', help='resume from checkpoint')
     parser.add_argument('--start_epoch', default=0, type=int, metavar='N',
@@ -178,7 +178,7 @@ def main(args):
             train_dataloader.sampler.set_epoch(epoch)
         train_stats = train_one_epoch(
             model, 
-            loss_model=AcTOL_loss,
+            loss_model=loss,
             data_loader=train_dataloader,
             optimizer=optimizer, 
             device=device, 

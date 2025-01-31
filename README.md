@@ -13,14 +13,6 @@ Pre-training vision-language representations on human action videos has emerged 
 - **Python 3.8+**
 - **PyTorch 1.13.1+**
 
-### Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-or install manually:
-```bash
-pip install torch==1.13.1 torchvision==0.14.1 timm==0.9.12 mmengine tqdm numpy tensorboardX gdown openai-clip chardet
-```
 
 ### Install AcTOL
 ```bash
