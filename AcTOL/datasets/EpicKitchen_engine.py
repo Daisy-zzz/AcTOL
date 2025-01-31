@@ -211,7 +211,7 @@ def train_one_epoch(model: torch.nn.Module,
         torch.cuda.synchronize()
         metric_logger.update(loss=loss_value)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])
-        metric_logger.update(loss_vlo=loss_rnc.item())
+        metric_logger.update(loss_vlo=loss_vlo.item())
         metric_logger.update(loss_bb=loss_bb.item())
         if tb_logger is not None and utils.get_rank() == 0 and start_idx % 50 == 0:
             for k, meter in metric_logger.meters.items():
