@@ -83,14 +83,13 @@ To evaluate the language-conditioned behavior cloning, please refer to the evalu
 ## Citation
 Kindly cite our paper if you find it helpful:
 ```bash
-@misc{zhang2025provableorderingcontinuityvisionlanguage,
-      title={Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents}, 
-      author={Zhizhen Zhang and Lei Zhu and Zhen Fang and Zi Huang and Yadan Luo},
-      year={2025},
-      eprint={2502.01218},
-      archivePrefix={arXiv},
-      primaryClass={cs.RO},
-      url={https://arxiv.org/abs/2502.01218}, 
+@inproceedings{zhang2025actol,
+  author       = {Zhizhen Zhang and Lei Zhu and Zhen Fang and Zi Huang and Yadan Luo},
+  title        = {Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents},
+  booktitle    = {Advances in Neural Information Processing Systems 39: Annual Conference
+                  on Neural Information Processing Systems 2025, NeurIPS 2025, San Diego,
+                  United States, December 2 - 7, 2025},
+  year         = {2025},
 }
 ```
 ## Acknowledgements
