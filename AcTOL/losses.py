@@ -48,10 +48,10 @@ def brownian_bridge_loss(current_features, current_labels):
     sigma_squared = alpha * (T - t)  # Shape: (N,)
 
     # Compute the Brownian Bridge constraint loss
-    squared_diff = torch.sum((current_features[1:-1] - linear_interpolation[1:-1]) ** 2, dim=1)  # Shape: (N,)
-    bridge_loss = torch.mean(squared_diff / (torch.log(1 + 2 * sigma_squared[1:-1]) + 1e-6))  # Normalize using dynamic variance
+    squared_diff = torch.mean((current_features[1:-1] - linear_interpolation[1:-1]) ** 2, dim=1)  # Shape: (N,)
+    bridge_loss = torch.sum(squared_diff / (torch.log(1 + 2 * sigma_squared[1:-1]) + 1e-6))  
 
-    return bridge_loss * 100
+    return bridge_loss * 0.1
 
 class AcTOL_loss(torch.nn.Module):
     def __init__(self, temperature=0.01, label_diff='l1'):
