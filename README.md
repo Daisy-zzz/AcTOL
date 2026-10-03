@@ -1,13 +1,26 @@
-# AcTOL: Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents
+# AcTOL: Vision-Language Pretraining from Human Videos for Robot Learning
 
-This repository provides the official implementation of **NeurIPS 2025 Poster "Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents"**. 
+**Action Temporal Coherence Learning (AcTOL)** learns ordered and continuous vision-language representations from human action videos for robot learning and language-conditioned manipulation.
 
-## 🔥Abstract
-Pre-training vision-language representations on human action videos has emerged as a promising approach to reduce reliance on large-scale expert demonstrations for training embodied agents. However, prior methods often employ time contrastive learning based on goal-reaching heuristics, progressively aligning language instructions from the initial to the final frame. This overemphasis on future frames can result in erroneous vision-language associations, as actions may terminate early or include irrelevant moments in the end. To address this issue, we propose Action Temporal Coherence Learning (AcTOL) to learn ordered and continuous vision-language representations without rigid goal-based constraint. AcTOL treats a video as a continuous trajectory where it (1) contrasts semantic differences between frames to reflect their natural ordering, and (2) imposes a local Brownian bridge constraint to ensure smooth transitions across intermediate frames. Extensive imitation learning experiments across varying numbers of demonstrations show that the pretrained features significantly enhance downstream manipulation tasks with high robustness to different linguistic styles of instructions, offering a viable pathway toward generalized embodied agents.
+Official implementation of **[Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents](https://papers.neurips.cc/paper_files/paper/2025/hash/68fa5b1f1c024639685be9668fd5dc32-Abstract-Conference.html)** (NeurIPS 2025, Poster).  
+Zhizhen Zhang, Lei Zhu, Zhen Fang, Zi Huang, and Yadan Luo.
+
+[Paper](https://papers.neurips.cc/paper_files/paper/2025/hash/68fa5b1f1c024639685be9668fd5dc32-Abstract-Conference.html) · [arXiv](https://arxiv.org/abs/2502.01218) · [Project page](https://actol-pretrain.github.io/) · [Pretrained checkpoint](#model-zoo) · [Citation](#citation)
+
+## Overview
+
+AcTOL studies temporal representation learning for robotics through vision-language pretraining on human videos. It combines an ordering objective with a local Brownian bridge constraint to model temporal continuity, without assuming that the final video frame always represents the language-specified goal.
+
+- **Pretraining data:** human action videos and language descriptions from EPIC-KITCHENS-100.
+- **Representation:** visual and language features that capture action semantics, temporal ordering, and continuity.
+- **Downstream evaluation:** language-conditioned behavior cloning for simulated and real-world robot manipulation, together with visual reward analysis.
+
+## Abstract
+Pre-training vision-language representations on human action videos has emerged as a promising approach to reduce reliance on large-scale expert demonstrations for training embodied agents. However, prior methods often employ time contrastive learning based on goal-reaching heuristics, progressively aligning language instructions from the initial to the final frame. This overemphasis on future frames can result in erroneous vision-language associations, as actions may terminate early or include irrelevant moments in the end. To address this issue, we propose Action Temporal Coherence Learning (AcTOL) to learn ordered and continuous vision-language representations without rigid goal-based constraint. AcTOL treats a video as a continuous trajectory where it (1) contrasts semantic differences between frames to reflect their natural ordering, and (2) imposes a local Brownian bridge constraint to ensure smooth transitions across intermediate frames. Extensive imitation learning experiments on both simulated and real robots show that the pretrained features significantly enhance downstream manipulation tasks with high robustness to different linguistic styles of instructions, offering a viable pathway toward generalized embodied agents.
 
 ![Demo](assets/demo.gif)
 
-## 🚀 Installation
+## Installation
 
 ### Prerequisites
 - **Python 3.8+**
@@ -21,7 +34,7 @@ pip install -e .
 
 ---
 
-## 🎯 Training AcTOL
+## Training AcTOL
 
 To train AcTOL on **EPIC-KITCHENS-100**, run:
 
@@ -50,12 +63,12 @@ python main.py --image_path /path/to/data \
 ---
 
 ## Model Zoo
-| Models    | Pretaining Methods | Params<br />(M) | Epochs | Pretrain ckpt                                                                              |
+| Models    | Pretraining Methods | Params<br />(M) | Epochs | Pretrain ckpt                                                                              |
 | --------- | ------------------- | --------------- | ----- | ------------------------------------------------------------------------------------------ |
 | RN50-CLIP | AcTOL       | 386             | 1000    | [link](https://drive.google.com/file/d/19GX5k0CjjHoCqhTSwNdmAqiNBlNnuiVw/view?usp=sharing) |
 
 
-## 📊 Evaluation
+## Evaluation
 
 To evaluate the language conditioned visual reward:
 ```python
@@ -82,14 +95,15 @@ To evaluate the language-conditioned behavior cloning, please refer to the evalu
 
 ## Citation
 Kindly cite our paper if you find it helpful:
-```bash
+```bibtex
 @inproceedings{zhang2025actol,
   author       = {Zhizhen Zhang and Lei Zhu and Zhen Fang and Zi Huang and Yadan Luo},
   title        = {Provable Ordering and Continuity in Vision-Language Pretraining for Generalizable Embodied Agents},
-  booktitle    = {Advances in Neural Information Processing Systems 39: Annual Conference
-                  on Neural Information Processing Systems 2025, NeurIPS 2025, San Diego,
-                  United States, December 2 - 7, 2025},
+  booktitle    = {Advances in Neural Information Processing Systems},
+  volume       = {38},
   year         = {2025},
+  doi          = {10.52202/085713-2428},
+  url          = {https://papers.neurips.cc/paper_files/paper/2025/hash/68fa5b1f1c024639685be9668fd5dc32-Abstract-Conference.html}
 }
 ```
 ## Acknowledgements
